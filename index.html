@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulário de Relatório - Coleta de Dados</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Bibliotecas para Geração de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <div class="header-container">
+        <img src="logo.png" alt="Logo da Empresa" class="company-logo">
+        <h1>Relatório de Coleta de Dados</h1>
+    </div>
+
+    <form id="report-form">
+        <fieldset>
+            <legend>Dados do Cliente</legend>
+            <div class="grid-row">
+                <p>
+                    <label for="data">Data:</label>
+                    <input type="date" id="data" name="data" required>
+                </p>
+                <p>
+                    <label for="empresa">Empresa:</label>
+                    <input type="text" id="empresa" name="empresa" required>
+                </p>
+            </div>
+
+            <div class="grid-row">
+                <p>
+                    <label for="cnpj">CNPJ:</label>
+                    <input type="text" id="cnpj" name="cnpj" placeholder="00.000.000/0000-00" required>
+                </p>
+                <p>
+                    <label for="responsavel">Responsável:</label>
+                    <input type="text" id="responsavel" name="responsavel" required>
+                </p>
+            </div>
+
+            <div class="grid-row">
+                <p>
+                    <label for="telefone">Telefone de Contato:</label>
+                    <input type="tel" id="telefone" name="telefone">
+                </p>
+                <p>
+                    <label for="cidade">Cidade:</label>
+                    <input type="text" id="cidade" name="cidade">
+                </p>
+            </div>
+
+            <div class="grid-row">
+                <p class="full-width">
+                    <label for="endereco">Endereço:</label>
+                    <input type="text" id="endereco" name="endereco">
+                </p>
+            </div>
+
+            <div class="grid-row">
+                <p>
+                    <label for="veiculo">Veículo:</label>
+                    <input type="text" id="veiculo" name="veiculo">
+                </p>
+                <p>
+                    <label for="km">KM:</label>
+                    <input type="text" id="km" name="km">
+                </p>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Dados do Equipamento</legend>
+            <div class="grid-row">
+                <p>
+                    <label for="marca">Marca:</label>
+                    <input type="text" id="marca" name="marca">
+                </p>
+                <p>
+                    <label for="modelo">Modelo:</label>
+                    <input type="text" id="modelo" name="modelo">
+                </p>
+                <p>
+                    <label for="kva">KVA:</label>
+                    <input type="text" id="kva" name="kva">
+                </p>
+            </div>
+
+            <div class="grid-row">
+                <p>
+                    <label for="tensao_entrada">Tensão Entrada:</label>
+                    <input type="text" id="tensao_entrada" name="tensao_entrada">
+                </p>
+                <p>
+                    <label for="tensao_saida">Tensão Saída:</label>
+                    <input type="text" id="tensao_saida" name="tensao_saida">
+                </p>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Configuração de Tensão</legend>
+            <div class="grid-row">
+                <p>
+                    <label for="t_entrada_conf">Tensão de Entrada Configurada:</label>
+                    <input type="text" id="t_entrada_conf" name="t_entrada_conf">
+                </p>
+                <p>
+                    <label for="t_saida_conf">Tensão de Saída Configurada:</label>
+                    <input type="text" id="t_saida_conf" name="t_saida_conf">
+                </p>
+                <p>
+                    <label for="freq_conf">Frequência Configurada (Hz):</label>
+                    <input type="text" id="freq_conf" name="freq_conf">
+                </p>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>EPIs Utilizados</legend>
+            <div class="button-group">
+                <input type="checkbox" id="capacete" name="epi" value="capacete">
+                <label for="capacete">Capacete</label>
+
+                <input type="checkbox" id="luvas" name="epi" value="luvas">
+                <label for="luvas">Luva</label>
+
+                <input type="checkbox" id="avental" name="epi" value="avental">
+                <label for="avental">Avental</label>
+            </div>
+            <p style="margin-top: 20px;">
+                <label for="outros_epi">Outros EPIs:</label>
+                <input type="text" id="outros_epi" name="outros_epi">
+            </p>
+        </fieldset>
+
+        <fieldset>
+            <legend>Infraestrutura (Local da Instalação)</legend>
+            <p>
+                <label>Possui Ar Condicionado?</label>
+                <div class="button-group">
+                    <input type="radio" id="ar_sim" name="ar_condicionado" value="sim">
+                    <label for="ar_sim">Sim</label>
+                    <input type="radio" id="ar_nao" name="ar_condicionado" value="nao">
+                    <label for="ar_nao">Não</label>
+                </div>
+            </p>
+            <p>
+                <label for="temperatura">Temperatura Local:</label>
+                <input type="text" id="temperatura" name="temperatura" placeholder="Ex: 22°C">
+            </p>
+            <p>
+                <label for="tipo_carga">Tipo de Carga Ligada no Equipamento:</label>
+                <input type="text" id="tipo_carga" name="tipo_carga">
+            </p>
+        </fieldset>
+
+        <fieldset>
+            <legend>Infraestrutura Elétrica</legend>
+            <p>
+                <label>Tem chave reversora (By-pass)?</label>
+                <div class="button-group">
+                    <input type="radio" id="bypass_sim" name="tem_bypass" value="sim">
+                    <label for="bypass_sim">Sim</label>
+                    <input type="radio" id="bypass_nao" name="tem_bypass" value="nao">
+                    <label for="bypass_nao">Não</label>
+                </div>
+            </p>
+            <p id="bypass-position-container">
+                <label>Posição da Chave By-pass:</label>
+                <div class="button-group">
+                    <input type="radio" id="pos_nobreak" name="posicao_bypass" value="nobreak">
+                    <label for="pos_nobreak">Nobreak</label>
+                    <input type="radio" id="pos_rede" name="posicao_bypass" value="rede">
+                    <label for="pos_rede">Rede</label>
+                </div>
+            </p>
+        </fieldset>
+
+        <fieldset>
+            <legend>Tensão de Entrada do Equipamento</legend>
+            <p><strong>Medições de Entrada (Fase e Neutro):</strong></p>
+            <div class="measurement-grid">
+                <p>
+                    <label for="fase_r">Fase R:</label>
+                    <input type="text" id="fase_r" name="fase_r" placeholder="Voltagem">
+                </p>
+                <p>
+                    <label for="fase_s">Fase S:</label>
+                    <input type="text" id="fase_s" name="fase_s" placeholder="Voltagem">
+                </p>
+                <p>
+                    <label for="fase_t">Fase T:</label>
+                    <input type="text" id="fase_t" name="fase_t" placeholder="Voltagem">
+                </p>
+            </div>
+
+            <p><strong>Corrente de Entrada:</strong></p>
+            <div class="measurement-grid">
+                <p>
+                    <label for="corrente_r">Fase R:</label>
+                    <input type="text" id="corrente_r" name="corrente_r" placeholder="Amperagem">
+                </p>
+                <p>
+                    <label for="corrente_s">Fase S:</label>
+                    <input type="text" id="corrente_s" name="corrente_s" placeholder="Amperagem">
+                </p>
+                <p>
+                    <label for="corrente_t">Fase T:</label>
+                    <input type="text" id="corrente_t" name="corrente_t" placeholder="Amperagem">
+                </p>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Tensão de Saída do Equipamento</legend>
+            <p><strong>Medições de Saída (Fase e Neutro):</strong></p>
+            <div class="measurement-grid">
+                <p>
+                    <label for="saida_fase_r">Fase R:</label>
+                    <input type="text" id="saida_fase_r" name="saida_fase_r" placeholder="Voltagem">
+                </p>
+                <p>
+                    <label for="saida_fase_s">Fase S:</label>
+                    <input type="text" id="saida_fase_s" name="saida_fase_s" placeholder="Voltagem">
+                </p>
+                <p>
+                    <label for="saida_fase_t">Fase T:</label>
+                    <input type="text" id="saida_fase_t" name="saida_fase_t" placeholder="Voltagem">
+                </p>
+            </div>
+
+            <p><strong>Corrente de Saída:</strong></p>
+            <div class="measurement-grid">
+                <p>
+                    <label for="saida_corrente_r">Fase R:</label>
+                    <input type="text" id="saida_corrente_r" name="saida_corrente_r" placeholder="Amperagem">
+                </p>
+                <p>
+                    <label for="saida_corrente_s">Fase S:</label>
+                    <input type="text" id="saida_corrente_s" name="saida_corrente_s" placeholder="Amperagem">
+                </p>
+                <p>
+                    <label for="saida_corrente_t">Fase T:</label>
+                    <input type="text" id="saida_corrente_t" name="saida_corrente_t" placeholder="Amperagem">
+                </p>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Verificações Gerais</legend>
+            <p>
+                <label>Ventiladores funcionando?</label>
+                <div class="button-group">
+                    <input type="radio" id="vent_sim" name="ventiladores" value="sim">
+                    <label for="vent_sim">Sim</label>
+                    <input type="radio" id="vent_nao" name="ventiladores" value="nao">
+                    <label for="vent_nao">Não</label>
+                </div>
+            </p>
+            <p>
+                <label>Avaliação visual da placa OK?</label>
+                <div class="button-group">
+                    <input type="radio" id="placa_sim" name="placa_visual" value="sim">
+                    <label for="placa_sim">Sim</label>
+                    <input type="radio" id="placa_nao" name="placa_visual" value="nao">
+                    <label for="placa_nao">Não</label>
+                </div>
+            </p>
+            <p>
+                <label>Limpeza externa do equipamento OK?</label>
+                <div class="button-group">
+                    <input type="radio" id="ext_sim" name="limpeza_externa" value="sim">
+                    <label for="ext_sim">Sim</label>
+                    <input type="radio" id="ext_nao" name="limpeza_externa" value="nao">
+                    <label for="ext_nao">Não</label>
+                </div>
+            </p>
+            <p>
+                <label>Limpeza interna do equipamento OK?</label>
+                <div class="button-group">
+                    <input type="radio" id="int_sim" name="limpeza_interna" value="sim">
+                    <label for="int_sim">Sim</label>
+                    <input type="radio" id="int_nao" name="limpeza_interna" value="nao">
+                    <label for="int_nao">Não</label>
+                </div>
+            </p>
+            <p>
+                <label>Limpeza de terminais e contatos OK?</label>
+                <div class="button-group">
+                    <input type="radio" id="term_sim" name="limpeza_terminais" value="sim">
+                    <label for="term_sim">Sim</label>
+                    <input type="radio" id="term_nao" name="limpeza_terminais" value="nao">
+                    <label for="term_nao">Não</label>
+                </div>
+            </p>
+            <p>
+                <label>Limpeza do banco de baterias OK?</label>
+                <div class="button-group">
+                    <input type="radio" id="bat_sim" name="limpeza_baterias" value="sim">
+                    <label for="bat_sim">Sim</label>
+                    <input type="radio" id="bat_nao" name="limpeza_baterias" value="nao">
+                    <label for="bat_nao">Não</label>
+                </div>
+            </p>
+        </fieldset>
+
+        <fieldset>
+            <legend>Baterias e Carregador</legend>
+            <p>
+                <label>Instalação das baterias:</label>
+                <div class="button-group">
+                    <input type="radio" id="bat_int" name="inst_bat" value="interna">
+                    <label for="bat_int">Interna</label>
+                    <input type="radio" id="bat_ext" name="inst_bat" value="externa">
+                    <label for="bat_ext">Externa</label>
+                </div>
+            </p>
+            <div class="grid-row">
+                <p>
+                    <label for="qtd_bat">Quantidade de baterias no banco:</label>
+                    <input type="number" id="qtd_bat" name="qtd_bat">
+                </p>
+                <p>
+                    <label for="tensao_banco">Tensão do banco de baterias:</label>
+                    <input type="text" id="tensao_banco" name="tensao_banco">
+                </p>
+                <p>
+                    <label for="tensao_carregador">Tensão do carregador:</label>
+                    <input type="text" id="tensao_carregador" name="tensao_carregador">
+                </p>
+            </div>
+            <div class="grid-row">
+                <p>
+                    <label for="mod_bat">Modelo das baterias:</label>
+                    <input type="text" id="mod_bat" name="mod_bat">
+                </p>
+                <p>
+                    <label for="data_fab_bat">Data de fabricação das baterias:</label>
+                    <input type="date" id="data_fab_bat" name="data_fab_bat">
+                </p>
+                <p>
+                    <label for="amp_bat">Amperagem da bateria (Ah):</label>
+                    <input type="text" id="amp_bat" name="amp_bat">
+                </p>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Conclusão</legend>
+            <p>
+                <label for="conclusao">Conclusão:</label><br>
+                <textarea id="conclusao" name="conclusao" rows="6" cols="50" placeholder="Insira aqui a conclusão do relatório..."></textarea>
+            </p>
+        </fieldset>
+
+        <fieldset>
+            <legend>Assinaturas</legend>
+            <p>
+                <label>Assinatura do Técnico:</label>
+                <div class="signature-wrapper">
+                    <canvas id="sig-canvas-tecnico" class="signature-pad"></canvas>
+                    <button type="button" class="clear-btn" id="clear-tecnico">Limpar</button>
+                </div>
+            </p>
+            <p>
+                <label>Assinatura do Cliente:</label>
+                <div class="signature-wrapper">
+                    <canvas id="sig-canvas-cliente" class="signature-pad"></canvas>
+                    <button type="button" class="clear-btn" id="clear-cliente">Limpar</button>
+                </div>
+            </p>
+        </fieldset>
+
+        <div class="action-buttons">
+            <button type="button" id="pdf-btn">Gerar PDF para Impressão</button>
+        </div>
+    </form>
+    <script src="script.js"></script>
+</body>
+</html>

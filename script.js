@@ -1,0 +1,223 @@
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 Script carregado com sucesso!');
+    const reportForm = document.getElementById('report-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const pdfBtn = document.getElementById('pdf-btn');
+    const bypassContainer = document.getElementById('bypass-position-container');
+
+    if (!pdfBtn) {
+        console.error('❌ Botão de PDF não encontrado no DOM!');
+    } else {
+        console.log('✅ Botão de PDF encontrado!');
+    }
+
+    // --- Lógica de Assinatura Digital ---
+    function setupSignaturePad(canvasId, clearBtnId) {
+        const canvas = document.getElementById(canvasId);
+        const clearBtn = document.getElementById(clearBtnId);
+        if (!canvas || !clearBtn) return;
+
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            ctx.scale(ratio, ratio);
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#000';
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function startDrawing(e) {
+            drawing = true;
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+            e.preventDefault();
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            const pos = getPos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            e.preventDefault();
+        }
+
+        function stopDrawing() {
+            drawing = false;
+        }
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', stopDrawing);
+
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing);
+
+        clearBtn.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+    }
+
+    setupSignaturePad('sig-canvas-tecnico', 'clear-tecnico');
+    setupSignaturePad('sig-canvas-cliente', 'clear-cliente');
+
+
+    // --- Lógica de Geração de PDF ---
+    if (pdfBtn) {
+        pdfBtn.addEventListener('click', async () => {
+            console.log('🔘 Botão de PDF clicado!');
+
+            if (!window.jspdf || !window.html2canvas) {
+                console.error('❌ Bibliotecas de PDF não carregadas!');
+                alert('Erro: Bibliotecas de PDF não carregadas. Verifique sua conexão com a internet.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const formElement = document.getElementById('report-form');
+
+            const originalText = pdfBtn.innerText;
+            pdfBtn.innerText = 'Gerando PDF...';
+            pdfBtn.disabled = true;
+
+            try {
+                console.log('📸 Capturando formulário com html2canvas...');
+                const canvas = await html2canvas(formElement, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#f4f4f4'
+                });
+                console.log('✅ Captura concluída!');
+
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+                const empresa = document.getElementById('empresa')?.value || 'Relatorio';
+                console.log(`💾 Salvando arquivo: Relatorio_${empresa}.pdf`);
+                pdf.save(`Relatorio_${empresa}.pdf`);
+                console.log('🚀 Download iniciado!');
+            } catch (error) {
+                console.error('❌ Erro ao gerar PDF:', error);
+                alert('Houve um erro ao gerar o PDF. Tente novamente.');
+            } finally {
+                pdfBtn.innerText = originalText;
+                pdfBtn.disabled = false;
+            }
+        });
+    }
+
+    // 1. Conditional Visibility for By-pass
+    const bypassRadios = document.querySelectorAll('input[name="tem_bypass"]');
+
+    const toggleBypassPosition = () => {
+        const selectedValue = document.querySelector('input[name="tem_bypass"]:checked')?.value;
+        if (selectedValue === 'sim') {
+            bypassContainer.style.display = 'block';
+        } else {
+            bypassContainer.style.display = 'none';
+        }
+    };
+
+    bypassRadios.forEach(radio => {
+        radio.addEventListener('change', toggleBypassPosition);
+    });
+
+    toggleBypassPosition();
+
+    // 2. CNPJ Masking
+    const cnpjInput = document.getElementById('cnpj');
+    if (cnpjInput) {
+        cnpjInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 14) value = value.slice(0, 14);
+
+            let formattedValue = '';
+            if (value.length > 0) formattedValue += value.substring(0, 2);
+            if (value.length > 2) formattedValue += '.' + value.substring(2, 5);
+            if (value.length > 5) formattedValue += '.' + value.substring(5, 8);
+            if (value.length > 8) formattedValue += '/' + value.substring(8, 12);
+            if (value.length > 12) formattedValue += '-' + value.substring(12, 14);
+
+            e.target.value = formattedValue;
+        });
+    }
+
+    // 3. Numeric Enforcement for technical fields
+    const numericFields = [
+        'km', 'kva', 't_entrada_conf', 't_saida_conf', 'freq_conf',
+        'fase_r', 'fase_s', 'fase_t', 'corrente_r', 'corrente_s', 'corrente_t',
+        'saida_fase_r', 'saida_fase_s', 'saida_fase_t', 'saida_corrente_r',
+        'saida_corrente_s', 'saida_corrente_t', 'qtd_bat', 'tensao_banco',
+        'tensao_carregador', 'amp_bat'
+    ];
+
+    numericFields.forEach(id => {
+        const field = document.getElementById(id);
+        if (field) {
+            field.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9.,]/g, '').replace(/([.,])([.,])/g, '$1');
+            });
+        }
+    });
+
+    // 4. Handle Submission & Summary
+    if (submitBtn) {
+        submitBtn.addEventListener('click', () => {
+            const requiredFields = reportForm.querySelectorAll('[required]');
+            let isValid = true;
+            let missingFields = [];
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.style.borderColor = 'red';
+                    missingFields.push(field.previousElementSibling?.innerText || field.id);
+                } else {
+                    field.style.borderColor = '';
+                }
+            });
+
+            if (!isValid) {
+                alert('Por favor, preencha todos os campos obrigatórios:\\n' + missingFields.join(', '));
+                return;
+            }
+
+            const formData = new FormData(reportForm);
+            let summary = '--- RESUMO DO RELATÓRIO ---\\n\\n';
+
+            formData.forEach((value, key) => {
+                const label = key.replace(/_/g, ' ').toUpperCase();
+                summary += `${label}: ${value}\\n`;
+            });
+
+            if (confirm(summary + '\\n\\nConfirma a submissão destes dados?')) {
+                alert('Relatório enviado com sucesso!');
+            }
+        });
+    }
+});
